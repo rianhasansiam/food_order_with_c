@@ -6,7 +6,7 @@
 #define MAX_NAME_LENGTH 50
 #define MAX_ITEM_LENGTH 100
 
-// Order structure
+
 struct Order {
     int orderId;
     char customerName[MAX_NAME_LENGTH];
@@ -14,47 +14,52 @@ struct Order {
     float price;
 };
 
-// Queue structure for pending orders (Array-based)
+
 struct OrderQueue {
-    struct Order orders[MAX_ORDERS];  // Array to store orders
+    struct Order orders[MAX_ORDERS];  
     int front;
     int rear;
     int count;
 };
 
-// Stack structure for order history (Array-based)
+
 struct OrderStack {
-    struct Order orders[MAX_ORDERS];  // Array to store orders
+    struct Order orders[MAX_ORDERS];  
     int top;
 };
 
-// ==================== QUEUE OPERATIONS (FIFO) ====================
 
-// Initialize the queue
+
 void initQueue(struct OrderQueue* queue) {
     queue->front = 0;
     queue->rear = -1;
     queue->count = 0;
 }
 
-// Check if queue is empty
+
 int isQueueEmpty(struct OrderQueue* queue) {
     return (queue->count == 0);
 }
 
-// Check if queue is full
+
 int isQueueFull(struct OrderQueue* queue) {
-    return (queue->count == MAX_ORDERS);
+    return (queue->rear == MAX_ORDERS - 1);
 }
 
-// Add order to queue (Enqueue operation)
+
+
+
+
+
+
 int enqueue(struct OrderQueue* queue, struct Order order) {
+    
     if (isQueueFull(queue)) {
         printf("\n[ERROR] Queue is full! Cannot accept more orders.\n");
         return 0;
     }
     
-    queue->rear = (queue->rear + 1) % MAX_ORDERS;
+    queue->rear++;
     queue->orders[queue->rear] = order;
     queue->count++;
     
@@ -65,23 +70,30 @@ int enqueue(struct OrderQueue* queue, struct Order order) {
     return 1;
 }
 
-// Remove order from queue (Dequeue operation)
+
 struct Order dequeue(struct OrderQueue* queue) {
+
     struct Order emptyOrder = {-1, "", "", 0.0};
-    
     if (isQueueEmpty(queue)) {
         printf("\n[ERROR] No pending orders to serve!\n");
         return emptyOrder;
     }
     
+
     struct Order order = queue->orders[queue->front];
-    queue->front = (queue->front + 1) % MAX_ORDERS;
+    queue->front++;
     queue->count--;
+    
+ 
+    if (queue->count == 0) {
+        queue->front = 0;
+        queue->rear = -1;
+    }
     
     return order;
 }
 
-// Display all pending orders in the queue
+
 void displayPendingOrders(struct OrderQueue* queue) {
     if (isQueueEmpty(queue)) {
         printf("\n[INFO] No pending orders in the queue.\n");
@@ -92,36 +104,34 @@ void displayPendingOrders(struct OrderQueue* queue) {
     printf("%-10s %-20s %-30s %-10s\n", "Order ID", "Customer Name", "Food Item", "Price");
     printf("------------------------------------------------------------\n");
     
-    int index = queue->front;
-    for (int i = 0; i < queue->count; i++) {
-        struct Order order = queue->orders[index];
+    for (int i = queue->front; i <= queue->rear; i++) {
+        struct Order order = queue->orders[i];
         printf("%-10d %-20s %-30s $%-9.2f\n", 
                order.orderId, order.customerName, order.foodItem, order.price);
-        index = (index + 1) % MAX_ORDERS;
     }
     
     printf("============================================\n");
     printf("Total Pending Orders: %d\n", queue->count);
 }
 
-// ==================== STACK OPERATIONS (LIFO) ====================
 
-// Initialize the stack
+
+
 void initStack(struct OrderStack* stack) {
     stack->top = -1;
 }
 
-// Check if stack is empty
+
 int isStackEmpty(struct OrderStack* stack) {
     return (stack->top == -1);
 }
 
-// Check if stack is full
+
 int isStackFull(struct OrderStack* stack) {
     return (stack->top == MAX_ORDERS - 1);
 }
 
-// Push order to stack (for served/cancelled orders)
+
 int push(struct OrderStack* stack, struct Order order) {
     if (isStackFull(stack)) {
         printf("\n[ERROR] Order history is full!\n");
@@ -134,22 +144,25 @@ int push(struct OrderStack* stack, struct Order order) {
     return 1;
 }
 
-// Pop order from stack (to view/cancel last served order)
-struct Order pop(struct OrderStack* stack) {
-    struct Order emptyOrder = {-1, "", "", 0.0};
-    
+
+void pop(struct OrderStack* stack) {
     if (isStackEmpty(stack)) {
         printf("\n[ERROR] No order history available!\n");
-        return emptyOrder;
+        return;
     }
     
     struct Order order = stack->orders[stack->top];
     stack->top--;
     
-    return order;
+    printf("\n[SUCCESS] Last served order has been cancelled!\n");
+    printf("Order ID: %d\n", order.orderId);
+    printf("Customer: %s\n", order.customerName);
+    printf("Food Item: %s\n", order.foodItem);
+    printf("Price: $%.2f\n", order.price);
+    printf("\nNote: Order removed from history.\n");
 }
 
-// Display order history (served/cancelled orders)
+
 void displayOrderHistory(struct OrderStack* stack) {
     if (isStackEmpty(stack)) {
         printf("\n[INFO] No order history available.\n");
@@ -170,9 +183,8 @@ void displayOrderHistory(struct OrderStack* stack) {
     printf("Total Orders in History: %d\n", stack->top + 1);
 }
 
-// ==================== UTILITY FUNCTIONS ====================
 
-// Utility function to display a single order
+
 void displayOrder(struct Order order) {
     printf("Order ID: %d\n", order.orderId);
     printf("Customer: %s\n", order.customerName);
@@ -180,34 +192,47 @@ void displayOrder(struct Order order) {
     printf("Price: $%.2f\n", order.price);
 }
 
-// Utility function to create an order
-struct Order createOrder(int orderId, const char* customerName, const char* foodItem, float price) {
-    struct Order order;
-    order.orderId = orderId;
-    strncpy(order.customerName, customerName, MAX_NAME_LENGTH - 1);
-    order.customerName[MAX_NAME_LENGTH - 1] = '\0';
-    strncpy(order.foodItem, foodItem, MAX_ITEM_LENGTH - 1);
-    order.foodItem[MAX_ITEM_LENGTH - 1] = '\0';
-    order.price = price;
-    return order;
+
+// Function to create order with user input
+int createOrder(struct OrderQueue* queue, int* nextOrderId) {
+    char customerName[MAX_NAME_LENGTH];
+    char foodItem[MAX_ITEM_LENGTH];
+    float price;
+    
+    printf("\n--- Place New Order ---\n");
+    printf("Enter customer name: ");
+    fgets(customerName, MAX_NAME_LENGTH, stdin);
+    customerName[strcspn(customerName, "\n")] = '\0';
+    
+    printf("Enter food item: ");
+    fgets(foodItem, MAX_ITEM_LENGTH, stdin);
+    foodItem[strcspn(foodItem, "\n")] = '\0';
+    
+    printf("Enter price: $");
+    if (scanf("%f", &price) != 1 || price < 0) {
+        printf("\n[ERROR] Invalid price!\n");
+        while (getchar() != '\n');
+        return 0;
+    }
+    getchar();
+    
+    struct Order newOrder;
+    newOrder.orderId = *nextOrderId;
+    strncpy(newOrder.customerName, customerName, MAX_NAME_LENGTH - 1);
+    newOrder.customerName[MAX_NAME_LENGTH - 1] = '\0';
+    strncpy(newOrder.foodItem, foodItem, MAX_ITEM_LENGTH - 1);
+    newOrder.foodItem[MAX_ITEM_LENGTH - 1] = '\0';
+    newOrder.price = price;
+    
+    if (enqueue(queue, newOrder)) {
+        (*nextOrderId)++;
+        return 1;
+    }
+    return 0;
 }
 
-void displayMenu() {
-    printf("\n");
-    printf("*********************************************************\n");
-    printf("*      FOOD ORDER MANAGEMENT SYSTEM                    *\n");
-    printf("*      Using Queue (FIFO) and Stack (LIFO)             *\n");
-    printf("*********************************************************\n");
-    printf("\n");
-    printf("1. Place a New Order (Enqueue)\n");
-    printf("2. Serve Next Order (Dequeue -> Push to History)\n");
-    printf("3. Cancel Last Served Order (Pop from History)\n");
-    printf("4. Display All Pending Orders (Queue)\n");
-    printf("5. Display Order History (Stack)\n");
-    printf("6. Exit System\n");
-    printf("\n");
-    printf("Enter your choice: ");
-}
+
+
 
 int main() {
     struct OrderQueue pendingOrders;
@@ -226,44 +251,40 @@ int main() {
     
     while (1) {
         system("cls");
-        displayMenu();
+
+
+        printf("\n");
+    printf("*********************************************************\n");
+    printf("*      FOOD ORDER MANAGEMENT SYSTEM                    *\n");
+    printf("*      Using Queue (FIFO) and Stack (LIFO)             *\n");
+    printf("*********************************************************\n");
+    printf("\n");
+    printf("1. Place a New Order (Enqueue)\n");
+    printf("2. Serve Next Order (Dequeue -> Push to History)\n");
+    printf("3. Cancel Last Served Order (Pop from History)\n");
+    printf("4. Display All Pending Orders (Queue)\n");
+    printf("5. Display Order History (Stack)\n");
+    printf("6. Exit System\n");
+    printf("\n");
+    printf("Enter your choice: ");
+
+
         
         if (scanf("%d", &choice) != 1) {
             printf("\n[ERROR] Invalid input! Please enter a number.\n");
-            while (getchar() != '\n'); // Clear input buffer
+            while (getchar() != '\n');
             printf("Press Enter to continue...");
             getchar();
             continue;
         }
-        getchar(); // Consume newline
+        getchar(); 
         
+
+
+
         switch (choice) {
-            case 1: { // Place a new order
-                char customerName[MAX_NAME_LENGTH];
-                char foodItem[MAX_ITEM_LENGTH];
-                float price;
-                
-                printf("\n--- Place New Order ---\n");
-                printf("Enter customer name: ");
-                fgets(customerName, MAX_NAME_LENGTH, stdin);
-                customerName[strcspn(customerName, "\n")] = '\0'; // Remove newline
-                
-                printf("Enter food item: ");
-                fgets(foodItem, MAX_ITEM_LENGTH, stdin);
-                foodItem[strcspn(foodItem, "\n")] = '\0'; // Remove newline
-                
-                printf("Enter price: $");
-                if (scanf("%f", &price) != 1 || price < 0) {
-                    printf("\n[ERROR] Invalid price!\n");
-                    while (getchar() != '\n'); // Clear input buffer
-                    break;
-                }
-                getchar(); // Consume newline
-                
-                struct Order newOrder = createOrder(nextOrderId, customerName, foodItem, price);
-                if (enqueue(&pendingOrders, newOrder)) {
-                    nextOrderId++;
-                }
+            case 1: {
+                createOrder(&pendingOrders, &nextOrderId);
                 printf("\nPress Enter to continue...");
                 getchar();
                 break;
@@ -284,38 +305,29 @@ int main() {
                 break;
             }
             
-            case 3: { // Cancel last served order
+            case 3: { 
                 printf("\n--- Cancel Last Served Order ---\n");
-                struct Order cancelledOrder = pop(&orderHistory);
-                
-                if (cancelledOrder.orderId != -1) {
-                    printf("\n[SUCCESS] Last served order has been cancelled!\n");
-                    printf("Order ID: %d\n", cancelledOrder.orderId);
-                    printf("Customer: %s\n", cancelledOrder.customerName);
-                    printf("Food Item: %s\n", cancelledOrder.foodItem);
-                    printf("Price: $%.2f\n", cancelledOrder.price);
-                    printf("\nNote: Order removed from history.\n");
-                }
+                pop(&orderHistory);
                 printf("\nPress Enter to continue...");
                 getchar();
                 break;
             }
             
-            case 4: { // Display pending orders
+            case 4: { 
                 displayPendingOrders(&pendingOrders);
                 printf("\nPress Enter to continue...");
                 getchar();
                 break;
             }
             
-            case 5: { // Display order history
+            case 5: { 
                 displayOrderHistory(&orderHistory);
                 printf("\nPress Enter to continue...");
                 getchar();
                 break;
             }
             
-            case 6: { // Exit
+            case 6: { 
                 system("cls");
                 printf("\n========================================================\n");
                 printf("    Thank you for using Food Order Management System!  \n");
