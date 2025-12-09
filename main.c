@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define MAX_ORDERS 100
 #define MAX_NAME_LENGTH 50
@@ -16,7 +15,7 @@ struct Order {
 
 
 struct OrderQueue {
-    struct Order orders[MAX_ORDERS];  
+    struct Order orders[MAX_ORDERS];
     int front;
     int rear;
     int count;
@@ -24,14 +23,14 @@ struct OrderQueue {
 
 
 struct OrderStack {
-    struct Order orders[MAX_ORDERS];  
+    struct Order orders[MAX_ORDERS];
     int top;
 };
 
 
 
 void initQueue(struct OrderQueue* queue) {
-    queue->front = 0;
+    queue->front = -1;
     queue->rear = -1;
     queue->count = 0;
 }
@@ -49,14 +48,14 @@ int isQueueFull(struct OrderQueue* queue) {
 
 
 
-
-
-
 int enqueue(struct OrderQueue* queue, struct Order order) {
-    
     if (isQueueFull(queue)) {
         printf("\n[ERROR] Queue is full! Cannot accept more orders.\n");
         return 0;
+    }
+    
+    if (queue->front == -1) {
+        queue->front = 0;
     }
     
     queue->rear++;
@@ -72,21 +71,18 @@ int enqueue(struct OrderQueue* queue, struct Order order) {
 
 
 struct Order dequeue(struct OrderQueue* queue) {
-
     struct Order emptyOrder = {-1, "", "", 0.0};
     if (isQueueEmpty(queue)) {
         printf("\n[ERROR] No pending orders to serve!\n");
         return emptyOrder;
     }
     
-
     struct Order order = queue->orders[queue->front];
     queue->front++;
     queue->count--;
     
- 
     if (queue->count == 0) {
-        queue->front = 0;
+        queue->front = -1;
         queue->rear = -1;
     }
     
@@ -193,20 +189,31 @@ void displayOrder(struct Order order) {
 }
 
 
-// Function to create order with user input
+
 int createOrder(struct OrderQueue* queue, int* nextOrderId) {
     char customerName[MAX_NAME_LENGTH];
     char foodItem[MAX_ITEM_LENGTH];
     float price;
+    int i;
     
     printf("\n--- Place New Order ---\n");
     printf("Enter customer name: ");
     fgets(customerName, MAX_NAME_LENGTH, stdin);
-    customerName[strcspn(customerName, "\n")] = '\0';
+    for (i = 0; i < MAX_NAME_LENGTH; i++) {
+        if (customerName[i] == '\n') {
+            customerName[i] = '\0';
+            break;
+        }
+    }
     
     printf("Enter food item: ");
     fgets(foodItem, MAX_ITEM_LENGTH, stdin);
-    foodItem[strcspn(foodItem, "\n")] = '\0';
+    for (i = 0; i < MAX_ITEM_LENGTH; i++) {
+        if (foodItem[i] == '\n') {
+            foodItem[i] = '\0';
+            break;
+        }
+    }
     
     printf("Enter price: $");
     if (scanf("%f", &price) != 1 || price < 0) {
@@ -218,10 +225,17 @@ int createOrder(struct OrderQueue* queue, int* nextOrderId) {
     
     struct Order newOrder;
     newOrder.orderId = *nextOrderId;
-    strncpy(newOrder.customerName, customerName, MAX_NAME_LENGTH - 1);
-    newOrder.customerName[MAX_NAME_LENGTH - 1] = '\0';
-    strncpy(newOrder.foodItem, foodItem, MAX_ITEM_LENGTH - 1);
-    newOrder.foodItem[MAX_ITEM_LENGTH - 1] = '\0';
+    
+    for (i = 0; i < MAX_NAME_LENGTH - 1 && customerName[i] != '\0'; i++) {
+        newOrder.customerName[i] = customerName[i];
+    }
+    newOrder.customerName[i] = '\0';
+    
+    for (i = 0; i < MAX_ITEM_LENGTH - 1 && foodItem[i] != '\0'; i++) {
+        newOrder.foodItem[i] = foodItem[i];
+    }
+    newOrder.foodItem[i] = '\0';
+    
     newOrder.price = price;
     
     if (enqueue(queue, newOrder)) {
@@ -277,11 +291,8 @@ int main() {
             getchar();
             continue;
         }
-        getchar(); 
+        getchar();
         
-
-
-
         switch (choice) {
             case 1: {
                 createOrder(&pendingOrders, &nextOrderId);
@@ -290,7 +301,7 @@ int main() {
                 break;
             }
             
-            case 2: { // Serve next order
+            case 2: {
                 printf("\n--- Serve Next Order ---\n");
                 struct Order servedOrder = dequeue(&pendingOrders);
                 
