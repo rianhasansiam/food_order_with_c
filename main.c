@@ -50,7 +50,12 @@ int isQueueFull(struct OrderQueue* queue) {
 
 int enqueue(struct OrderQueue* queue, struct Order order) {
     if (isQueueFull(queue)) {
-        printf("\n[ERROR] Queue is full! Cannot accept more orders.\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |   ERROR: Queue is full! Cannot accept more orders          |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         return 0;
     }
     
@@ -62,9 +67,16 @@ int enqueue(struct OrderQueue* queue, struct Order order) {
     queue->orders[queue->rear] = order;
     queue->count++;
     
-    printf("\n[SUCCESS] Order #%d placed successfully!\n", order.orderId);
-    printf("Customer: %s | Item: %s | Price: $%.2f\n", 
-           order.customerName, order.foodItem, order.price);
+    printf("\n\n");
+    printf("    +============================================================+\n");
+    printf("    |                                                            |\n");
+    printf("    |   SUCCESS: Order #%-3d placed successfully!              |\n", order.orderId);
+    printf("    |                                                            |\n");
+    printf("    +------------------------------------------------------------+\n");
+    printf("    |   Customer:  %-45s |\n", order.customerName);
+    printf("    |   Item:      %-45s |\n", order.foodItem);
+    printf("    |   Price:     $%-44.2f |\n", order.price);
+    printf("    +============================================================+\n");
     
     return 1;
 }
@@ -73,7 +85,12 @@ int enqueue(struct OrderQueue* queue, struct Order order) {
 struct Order dequeue(struct OrderQueue* queue) {
     struct Order emptyOrder = {-1, "", "", 0.0};
     if (isQueueEmpty(queue)) {
-        printf("\n[ERROR] No pending orders to serve!\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |   ERROR: No pending orders to serve!                       |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         return emptyOrder;
     }
     
@@ -92,22 +109,33 @@ struct Order dequeue(struct OrderQueue* queue) {
 
 void displayPendingOrders(struct OrderQueue* queue) {
     if (isQueueEmpty(queue)) {
-        printf("\n[INFO] No pending orders in the queue.\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |        INFO: No pending orders in the queue                |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         return;
     }
     
-    printf("\n========== PENDING ORDERS (Queue) ==========\n");
-    printf("%-10s %-20s %-30s %-10s\n", "Order ID", "Customer Name", "Food Item", "Price");
-    printf("------------------------------------------------------------\n");
+    printf("\n\n");
+    printf("    +======================================================================+\n");
+    printf("    ||                                                                    ||\n");
+    printf("    ||                  PENDING ORDERS (Queue)                           ||\n");
+    printf("    ||                                                                    ||\n");
+    printf("    +======================================================================+\n");
+    printf("    | %-10s | %-20s | %-28s | %-10s |\n", "Order ID", "Customer Name", "Food Item", "Price");
+    printf("    +------------+----------------------+------------------------------+------------+\n");
     
     for (int i = queue->front; i <= queue->rear; i++) {
         struct Order order = queue->orders[i];
-        printf("%-10d %-20s %-30s $%-9.2f\n", 
+        printf("    | %-10d | %-20s | %-28s | $%-9.2f |\n", 
                order.orderId, order.customerName, order.foodItem, order.price);
     }
     
-    printf("============================================\n");
-    printf("Total Pending Orders: %d\n", queue->count);
+    printf("    +------------+----------------------+------------------------------+------------+\n");
+    printf("    ||  Total Pending Orders: %-44d ||\n", queue->count);
+    printf("    +======================================================================+\n");
 }
 
 
@@ -143,40 +171,63 @@ int push(struct OrderStack* stack, struct Order order) {
 
 void pop(struct OrderStack* stack) {
     if (isStackEmpty(stack)) {
-        printf("\n[ERROR] No order history available!\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |   ERROR: No order history available!                       |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         return;
     }
     
     struct Order order = stack->orders[stack->top];
     stack->top--;
     
-    printf("\n[SUCCESS] Last served order has been cancelled!\n");
-    printf("Order ID: %d\n", order.orderId);
-    printf("Customer: %s\n", order.customerName);
-    printf("Food Item: %s\n", order.foodItem);
-    printf("Price: $%.2f\n", order.price);
-    printf("\nNote: Order removed from history.\n");
+    printf("\n\n");
+    printf("    +============================================================+\n");
+    printf("    |                                                            |\n");
+    printf("    |   Last served order has been cancelled!                    |\n");
+    printf("    |                                                            |\n");
+    printf("    +------------------------------------------------------------+\n");
+    printf("    |   Order ID:   %-44d |\n", order.orderId);
+    printf("    |   Customer:   %-44s |\n", order.customerName);
+    printf("    |   Food Item:  %-44s |\n", order.foodItem);
+    printf("    |   Price:      $%-43.2f |\n", order.price);
+    printf("    +------------------------------------------------------------+\n");
+    printf("    |   Note: Order removed from history                         |\n");
+    printf("    +============================================================+\n");
 }
 
 
 void displayOrderHistory(struct OrderStack* stack) {
     if (isStackEmpty(stack)) {
-        printf("\n[INFO] No order history available.\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |        INFO: No order history available                    |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         return;
     }
     
-    printf("\n========== ORDER HISTORY (Stack - Most Recent First) ==========\n");
-    printf("%-10s %-20s %-30s %-10s\n", "Order ID", "Customer Name", "Food Item", "Price");
-    printf("----------------------------------------------------------------\n");
+    printf("\n\n");
+    printf("    +======================================================================+\n");
+    printf("    ||                                                                    ||\n");
+    printf("    ||            ORDER HISTORY (Stack - Most Recent First)              ||\n");
+    printf("    ||                                                                    ||\n");
+    printf("    +======================================================================+\n");
+    printf("    | %-10s | %-20s | %-28s | %-10s |\n", "Order ID", "Customer Name", "Food Item", "Price");
+    printf("    +------------+----------------------+------------------------------+------------+\n");
     
     for (int i = stack->top; i >= 0; i--) {
         struct Order order = stack->orders[i];
-        printf("%-10d %-20s %-30s $%-9.2f\n", 
+        printf("    | %-10d | %-20s | %-28s | $%-9.2f |\n", 
                order.orderId, order.customerName, order.foodItem, order.price);
     }
     
-    printf("================================================================\n");
-    printf("Total Orders in History: %d\n", stack->top + 1);
+    printf("    +------------+----------------------+------------------------------+------------+\n");
+    printf("    ||  Total Orders in History: %-41d ||\n", stack->top + 1);
+    printf("    +======================================================================+\n");
 }
 
 
@@ -196,8 +247,13 @@ int createOrder(struct OrderQueue* queue, int* nextOrderId) {
     float price;
     int i;
     
-    printf("\n--- Place New Order ---\n");
-    printf("Enter customer name: ");
+    printf("\n\n");
+    printf("    +============================================================+\n");
+    printf("    |                                                            |\n");
+    printf("    |                   PLACE NEW ORDER                          |\n");
+    printf("    |                                                            |\n");
+    printf("    +============================================================+\n");
+    printf("\n    >> Enter customer name: ");
     fgets(customerName, MAX_NAME_LENGTH, stdin);
     for (i = 0; i < MAX_NAME_LENGTH; i++) {
         if (customerName[i] == '\n') {
@@ -206,7 +262,7 @@ int createOrder(struct OrderQueue* queue, int* nextOrderId) {
         }
     }
     
-    printf("Enter food item: ");
+    printf("    >> Enter food item: ");
     fgets(foodItem, MAX_ITEM_LENGTH, stdin);
     for (i = 0; i < MAX_ITEM_LENGTH; i++) {
         if (foodItem[i] == '\n') {
@@ -215,9 +271,14 @@ int createOrder(struct OrderQueue* queue, int* nextOrderId) {
         }
     }
     
-    printf("Enter price: $");
+    printf("    >> Enter price: $");
     if (scanf("%f", &price) != 1 || price < 0) {
-        printf("\n[ERROR] Invalid price!\n");
+        printf("\n\n");
+        printf("    +============================================================+\n");
+        printf("    |                                                            |\n");
+        printf("    |   ERROR: Invalid price!                                    |\n");
+        printf("    |                                                            |\n");
+        printf("    +============================================================+\n");
         while (getchar() != '\n');
         return 0;
     }
@@ -258,36 +319,43 @@ int main() {
     int choice;
     int nextOrderId = 1;
     
-    printf("\n");
-    printf("========================================================\n");
-    printf("    Welcome to Food Order Management System!           \n");
-    printf("========================================================\n");
-    
     while (1) {
         system("cls");
 
 
         printf("\n");
-    printf("*********************************************************\n");
-    printf("*      FOOD ORDER MANAGEMENT SYSTEM                    *\n");
-    printf("*      Using Queue (FIFO) and Stack (LIFO)             *\n");
-    printf("*********************************************************\n");
-    printf("\n");
-    printf("1. Place a New Order (Enqueue)\n");
-    printf("2. Serve Next Order (Dequeue -> Push to History)\n");
-    printf("3. Cancel Last Served Order (Pop from History)\n");
-    printf("4. Display All Pending Orders (Queue)\n");
-    printf("5. Display Order History (Stack)\n");
-    printf("6. Exit System\n");
-    printf("\n");
-    printf("Enter your choice: ");
+        printf("    ================================================================\n");
+        printf("    ||                                                            ||\n");
+        printf("    ||            FOOD ORDER MANAGEMENT SYSTEM                   ||\n");
+        printf("    ||                Queue (FIFO) & Stack (LIFO)                ||\n");
+        printf("    ||                                                            ||\n");
+        printf("    ================================================================\n");
+        printf("\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("    |  [1]  Place a New Order     |  |  [2]  Serve Next Order      |\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("    |  [3]  Cancel Last Served    |  |  [4]  View Pending Orders   |\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("    |  [5]  View Order History    |  |  [6]  Exit System           |\n");
+        printf("    +=============================+  +=============================+\n");
+        printf("\n");
+        printf("    >> Enter your choice (1-6): ");
 
 
         
         if (scanf("%d", &choice) != 1) {
-            printf("\n[ERROR] Invalid input! Please enter a number.\n");
+            printf("\n\n");
+            printf("    +============================================================+\n");
+            printf("    |                                                            |\n");
+            printf("    |   ERROR: Invalid input! Please enter a number              |\n");
+            printf("    |                                                            |\n");
+            printf("    +============================================================+\n");
             while (getchar() != '\n');
-            printf("Press Enter to continue...");
+            printf("\n    >> Press Enter to continue...");
             getchar();
             continue;
         }
@@ -296,63 +364,100 @@ int main() {
         switch (choice) {
             case 1: {
                 createOrder(&pendingOrders, &nextOrderId);
-                printf("\nPress Enter to continue...");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
             }
             
             case 2: {
-                printf("\n--- Serve Next Order ---\n");
+                printf("\n\n");
+                printf("    +============================================================+\n");
+                printf("    |                                                            |\n");
+                printf("    |                  SERVE NEXT ORDER                          |\n");
+                printf("    |                                                            |\n");
+                printf("    +============================================================+\n");
                 struct Order servedOrder = dequeue(&pendingOrders);
                 
                 if (servedOrder.orderId != -1) {
                     push(&orderHistory, servedOrder);
-                    printf("\n[SUCCESS] Order #%d has been served!\n", servedOrder.orderId);
-                    printf("Customer: %s | Item: %s | Price: $%.2f\n", 
-                           servedOrder.customerName, servedOrder.foodItem, servedOrder.price);
+                    printf("\n\n");
+                    printf("    +============================================================+\n");
+                    printf("    |                                                            |\n");
+                    printf("    |   Order #%-3d has been served successfully!              |\n", servedOrder.orderId);
+                    printf("    |                                                            |\n");
+                    printf("    +------------------------------------------------------------+\n");
+                    printf("    |   Customer:  %-45s |\n", servedOrder.customerName);
+                    printf("    |   Item:      %-45s |\n", servedOrder.foodItem);
+                    printf("    |   Price:     $%-44.2f |\n", servedOrder.price);
+                    printf("    +============================================================+\n");
                 }
-                printf("\nPress Enter to continue...");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
             }
             
             case 3: { 
-                printf("\n--- Cancel Last Served Order ---\n");
+                printf("\n\n");
+                printf("    +============================================================+\n");
+                printf("    |                                                            |\n");
+                printf("    |              CANCEL LAST SERVED ORDER                      |\n");
+                printf("    |                                                            |\n");
+                printf("    +============================================================+\n");
                 pop(&orderHistory);
-                printf("\nPress Enter to continue...");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
             }
             
             case 4: { 
                 displayPendingOrders(&pendingOrders);
-                printf("\nPress Enter to continue...");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
             }
             
             case 5: { 
                 displayOrderHistory(&orderHistory);
-                printf("\nPress Enter to continue...");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
             }
             
             case 6: { 
                 system("cls");
-                printf("\n========================================================\n");
-                printf("    Thank you for using Food Order Management System!  \n");
-                printf("========================================================\n");
-                printf("\nSystem Statistics:\n");
-                printf("  - Pending Orders: %d\n", pendingOrders.count);
-                printf("  - Orders in History: %d\n", orderHistory.top + 1);
-                printf("\nGoodbye!\n\n");
+                printf("\n\n");
+                printf("    ============================================================\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||        THANK YOU FOR USING OUR SYSTEM!                ||\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||         Food Order Management System                  ||\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||                                                        ||\n");
+                printf("    ============================================================\n");
+                printf("    ||                 System Statistics                     ||\n");
+                printf("    ============================================================\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||    Pending Orders:       %-26d    ||\n", pendingOrders.count);
+                printf("    ||    Orders in History:    %-26d    ||\n", orderHistory.top + 1);
+                printf("    ||                                                        ||\n");
+                printf("    ============================================================\n");
+                printf("    ||                                                        ||\n");
+                printf("    ||              Goodbye! See you soon!                   ||\n");
+                printf("    ||                                                        ||\n");
+                printf("    ============================================================\n");
+                printf("\n\n");
                 return 0;
             }
             
             default:
-                printf("\n[ERROR] Invalid choice! Please select 1-6.\n");
-                printf("\nPress Enter to continue...");
+                printf("\n\n");
+                printf("    +============================================================+\n");
+                printf("    |                                                            |\n");
+                printf("    |   ERROR: Invalid choice! Please select 1-6                 |\n");
+                printf("    |                                                            |\n");
+                printf("    +============================================================+\n");
+                printf("\n    >> Press Enter to continue...");
                 getchar();
                 break;
         }
